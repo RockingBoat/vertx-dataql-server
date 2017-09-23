@@ -1,0 +1,118 @@
+group 'home.mymoney'
+version '1.2-SNAPSHOT'
+
+buildscript {
+    ext.kotlin_version = '1.1.2-5'
+    ext.vertx_version = '3.4.1'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.0'
+
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'application'
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    jcenter()
+    mavenCentral()
+    flatDir {
+        dirs 'external'
+    }
+}
+
+compileJava {
+    options.forkOptions.with {
+        memoryMaximumSize = '2048m'
+    }
+}
+
+sourceSets {
+    main.kotlin.srcDirs += 'src'
+    test {
+        kotlin {
+            srcDir "test"
+        }
+    }
+}
+mainClassName = 'io.vertx.core.Launcher'
+def mainVerticleName = 'mymoney.App'
+run {
+    args = ['run', mainVerticleName,
+            "--launcher-class=$mainClassName",
+            "--redeploy=src/**/*.*",
+            "--on-redeploy=./gradlew classes",
+//            "--java-opts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000"
+//            "--instances=8",
+//            "--cluster",
+//            "--ha"
+
+    ]
+}
+
+
+
+
+
+dependencies {
+    compile "io.vertx:vertx-core:$vertx_version"
+    compile "io.vertx:vertx-lang-kotlin:$vertx_version"
+//    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "nl.komponents.kovenant:kovenant:3.3.0"
+    compile "io.vertx:vertx-web:3.4.1"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "de.vandermeer:asciitable:0.3.2"
+    compile "org.litote.kmongo:kmongo-async:3.3.5"
+    compile "vertx.helpers:web:0.4"
+    compile 'com.github.hotchemi:khronos:0.9.0'
+    compile 'io.github.microutils:kotlin-logging:1.4.5'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
+
+
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
+
+
+
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+defaultTasks 'run'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "4.0"
+}
+
+shadowJar {
+    classifier = 'fat'
+    manifest {
+        attributes 'Main-Verticle': mainVerticleName
+        attributes 'Main-Class': mainClassName
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+}
+
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+

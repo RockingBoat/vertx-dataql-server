@@ -1,0 +1,29 @@
+{
+  "queries": [
+    {
+      "service": "orders",
+      "version": "v1",
+      "method": "count"
+    },
+    {
+      "service": "bonuses",
+      "version": "v1",
+      "method": "count"
+    },
+    {
+      "service": "reviews",
+      "version": "v1",
+      "method": "count"
+    },
+    {
+      "service": "actions",
+      "version": "v1",
+      "method": "count"
+    },
+    {
+      "service": "favorites",
+      "version": "v1",
+      "method": "count"
+    }
+  ]
+}

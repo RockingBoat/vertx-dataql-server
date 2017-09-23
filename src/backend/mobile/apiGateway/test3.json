@@ -1,0 +1,12 @@
+{
+  "extract": {
+    "list.person_id": "pid",
+    "list.calculated_rank": "cr",
+    "list.subdomain": "sb",
+    "list.image": "image"
+  },
+  "blend": {
+    "from": "list",
+    "to": "data"
+  }
+}

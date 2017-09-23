@@ -1,0 +1,29 @@
+{
+  "q": [
+    {
+      "service": "shopcart",
+      "version": "v1",
+      "method": "get",
+      "fields": [
+        {
+          "from": "list.*.id",
+          "to": "data.*.id2"
+        }
+      ]
+    },
+    {
+      "service": "account",
+      "version": "v1",
+      "method": "info",
+      "fields": [
+        {
+          "from": "list.*.id",
+          "to": "data.*.id2"
+        }
+      ]
+    }
+  ],
+  "o": {
+    "debug": true
+  }
+}
