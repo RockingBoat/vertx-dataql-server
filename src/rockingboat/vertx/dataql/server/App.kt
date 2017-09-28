@@ -1,15 +1,24 @@
-package backend.mobile.apiGateway
+package rockingboat.vertx.dataql.server
 
 
-import backend.mobile.apiGateway.jsonExtension.JsonPathKey
-import backend.mobile.apiGateway.jsonExtension.regexArrayIndex
-import backend.mobile.apiGateway.jsonExtension.regexFullArray
-import backend.mobile.apiGateway.jsonExtension.regexSet
-import backend.mobile.apiGateway.jsonExtension.regexSplitByComma
+import com.github.salomonbrys.kodein.instance
+import rockingboat.vertx.dataql.server.jsonExtension.JsonPathKey
+import rockingboat.vertx.dataql.server.jsonExtension.regexArrayIndex
+import rockingboat.vertx.dataql.server.jsonExtension.regexFullArray
+import rockingboat.vertx.dataql.server.jsonExtension.regexSet
+import rockingboat.vertx.dataql.server.jsonExtension.regexSplitByComma
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
+import io.vertx.kotlin.core.json.Json
 import io.vertx.kotlin.core.json.get
-import java.io.File
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
+import rockingboat.vertx.dataql.server.data.OneRequest
+import rockingboat.vertx.dataql.server.data.Options
+import rockingboat.vertx.dataql.server.data.ServiceQuery
+import rockingboat.vertx.dataql.server.interfaces.IRequester
 
 
 private val regexSplitByDot = Regex("[/\\.]")
@@ -58,21 +67,6 @@ private val regexSplitByDot = Regex("[/\\.]")
 //
 //
 
-fun JsonArray.removeAnotherKeysThanThis(key: String): JsonArray = removeAnotherKeysThanThese(listOf(key))
-fun JsonArray.removeAnotherKeysThanThese(keys: List<String>): JsonArray = apply {
-    forEach { (it as? JsonObject)?.removeAnotherKeysThanThese(keys) }
-}
-
-fun JsonObject.removeAnotherKeysThanThis(key: String): JsonObject = removeAnotherKeysThanThese(listOf(key))
-fun JsonObject.removeAnotherKeysThanThese(_keys: List<String>): JsonObject = apply {
-    fieldNames().filterNot { _keys.contains(it) }.forEach { remove(it) }
-}
-
-fun Any.prettyPrinted(): String? = when (this) {
-    is JsonObject -> this.encodePrettily()
-    is JsonArray  -> this.encodePrettily()
-    else          -> null
-}
 
 class JsonKeyPath(private val key: String) {
     //    val isOutputArray: Boolean by lazy { items.count { it is JsonPathKey.FullArray } > 0 }
@@ -144,36 +138,50 @@ class JsonKeyPath(private val key: String) {
 }
 
 
-fun parse(name: String): JsonObject? = JsonObject(File(name).readText())
-
 fun main(args: Array<String>) {
-    val obj = parse("/Work/projects/vertx/api-gateway/src/backend/mobile/apiGateway/test2.json")
-    val query = parse("/Work/projects/vertx/api-gateway/src/backend/mobile/apiGateway/test1.json")
+
+    val requester = di.instance<IRequester>()
 
 
+//    val obj = parse("/Work/projects/vertx/api-gateway/src/rockingboat/vertx/dataql/server/test2.json")
+    val query = parse("/Work/projects/vertx/api-gateway/src/rockingboat/vertx/dataql/server/test1.json")
+//
+//
     query?.let {
         val queries = it.get<JsonArray?>("q") ?: throw IllegalArgumentException("kkk") // TODO: EXCEPTION
         val options = it.get<JsonObject?>("o")
         val request = it.get<JsonObject?>("r")
 
         val servicesQueries = queries.map { query ->
-            JsonObject().apply {
-                put("query", query)
-                options?.let {
-                    put("options", it)
+
+            if (options != null && query is JsonObject) {
+                val serviceQuery = tryOrNull { ServiceQuery(query) }
+                val serviceOptions = Options(options)
+
+                if (serviceQuery != null) {
+                    val omeR = OneRequest(serviceQuery, serviceOptions)
+                    println(JsonObject.mapFrom(omeR).prettyPrinted())
+
                 }
             }
+
         }
-        println(servicesQueries.map { it.encodePrettily() })
 
         // HERE Requests
 
+        runBlocking {
+            val result = requester.goTest()
+
+            val c = JsonKeyPath("list.*.<person_id, calculated_rank>")
+//            c.t1(result!!)
+        }
+
+
+        println("QQ")
 
     } ?: throw IllegalArgumentException("kkk") // TODO: EXCEPTION
-
-
-    val c = JsonKeyPath("list.*.<person_id, calculated_rank>")
-    c.t1(obj!!)
+//
+//
 
 //    val a = obj?.expandJsonPathKey("list.*.<person_id, calculated_rank>")?.toStringList()
 //    val b = obj?.lookup<Any>("list.person_id")

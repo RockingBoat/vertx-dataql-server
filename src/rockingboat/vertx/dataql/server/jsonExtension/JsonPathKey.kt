@@ -1,4 +1,4 @@
-package backend.mobile.apiGateway.jsonExtension
+package rockingboat.vertx.dataql.server.jsonExtension
 
 import io.vertx.core.json.JsonArray
 import io.vertx.core.shareddata.impl.ClusterSerializable
@@ -13,11 +13,11 @@ sealed class JsonPathKey {
     data class ObjectKeys(val set: Set<String>) : JsonPathKey()
     object FullArray : JsonPathKey()
 
-    fun newInstance(): JsonBase = when (this) {
-        is JsonPathKey.ObjectKey  -> JsonObject()
-        is JsonPathKey.ArrayIndex -> JsonArray()
-        else                      -> throw IllegalArgumentException("unsupported type ")
-    }
+//    fun newInstance(): JsonBase = when (this) {
+//        is ObjectKey  -> JsonObject()
+//        is ArrayIndex -> JsonArray()
+//        else                                                                    -> throw IllegalArgumentException("unsupported type ")
+//    }
 
 }
 

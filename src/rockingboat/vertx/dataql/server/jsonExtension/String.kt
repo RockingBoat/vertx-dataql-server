@@ -1,4 +1,4 @@
-package backend.mobile.apiGateway.jsonExtension
+package rockingboat.vertx.dataql.server.jsonExtension
 
 
 val regexArrayIndex = Regex("^\\[(\\d+)\\]$")

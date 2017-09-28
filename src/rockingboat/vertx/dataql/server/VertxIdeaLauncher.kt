@@ -1,3 +1,3 @@
-package backend.mobile.apiGateway
+package rockingboat.vertx.dataql.server
 
 class VertxIdeaLauncher : io.vertx.core.Launcher()

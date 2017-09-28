@@ -1,4 +1,4 @@
-import org.gradle.script.lang.kotlin.repositories
+//import org.gradle.script.lang.kotlin.repositories
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.api.plugins.ExtensionAware
@@ -8,21 +8,26 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
+import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
-project.group = "backend.mobile.apiGateway"
-project.version = "1.2-SNAPSHOT"
+project.group = "rockingboat.vertx.dataql.server"
+project.version = "0.1-SNAPSHOT"
 
 project.defaultTasks("run")
 
 
 //mainClassName = "io.vertx.core.Launcher"
-val mainVerticleName = "backend.mobile.apiGateway.App"
+val mainVerticleName = "rockingboat.vertx.dataql.server.App"
 
 
 
 
 buildscript {
-    val kotlinVersion = "1.1.4-3"
+    var kotlinVersion: String by extra
+
+    kotlinVersion = "1.1.50"
+
+
 
     repositories {
         mavenCentral()
@@ -42,32 +47,17 @@ buildscript {
 plugins {
     application
     java
-    id("io.gitlab.arturbosch.detekt").version("1.0.0.M12.3")
 }
 
 apply {
     plugin("kotlin")
-    plugin("com.github.johnrengelman.shadow")
-    plugin("io.gitlab.arturbosch.detekt")
     plugin("org.junit.platform.gradle.plugin")
-    plugin("org.jetbrains.dokka")
 }
-
-//configure {
-//    filters {
-//        engines {
-//            include("spek")
-//        }
-//    }
-//}
 
 
 repositories {
     mavenCentral()
     jcenter()
-    flatDir {
-        dirs("external")
-    }
 }
 
 
@@ -98,9 +88,17 @@ application {
 
 
 
+
 dependencies {
-    val kotlinVersion = "1.1.4-3"
-    val vertxVersion = "3.4.1"
+    val kotlinVersion: String by extra
+    var vertxVersion: String by extra
+    var kodeinVersion: String by extra
+    var kotlinCoroutinsVersion: String by extra
+
+    vertxVersion = "3.4.2"
+    kodeinVersion = "4.1.0"
+    kotlinCoroutinsVersion = "0.18"
+
 
     compile("io.vertx:vertx-core:$vertxVersion")
     compile("io.vertx:vertx-lang-kotlin:$vertxVersion")
@@ -109,19 +107,13 @@ dependencies {
     compile("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
     compile("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 
+    compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinsVersion")
 
-//    testCompile("ch.qos.logback:logback-classic:1.2.3")
-//
-//    testCompile("org.jetbrains.spek:spek-api:1.1.2")
-//    testCompile("com.natpryce:hamkrest:1.4.1.0")
-//    testCompile("org.junit.platform:junit-platform-launcher:1.0.0-M4")
-//
-//
-//    testRuntime("org.jetbrains.spek:spek-junit-platform-engine:1.1.2")
+    compile("com.github.salomonbrys.kodein:kodein:$kodeinVersion")
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "4.0"
+    gradleVersion = "4.2"
 }
 
 tasks.withType<KotlinCompile> {
@@ -131,26 +123,26 @@ tasks.withType<KotlinCompile> {
 }
 
 
-tasks.withType<DokkaTask>() {
-    outputFormat = "kotlin-website"
-    outputDirectory = "${buildDir}/kws"
-}
-
-
-val shadowJar: ShadowJar by tasks
-shadowJar.apply {
-    classifier = "fat"
-    manifest.attributes.apply {
-        put("Main-Verticle", mainVerticleName)
-        put("Main-Class", application.mainClassName)
-    }
-
-    mergeServiceFiles {
-        include("META-INF/services/io.vertx.core.spi.VerticleFactory")
-    }
-
-}
-
+//tasks.withType<DokkaTask>() {
+//    outputFormat = "kotlin-website"
+//    outputDirectory = "${buildDir}/kws"
+//}
+//
+//
+//val shadowJar: ShadowJar by tasks
+//shadowJar.apply {
+//    classifier = "fat"
+//    manifest.attributes.apply {
+//        put("Main-Verticle", mainVerticleName)
+//        put("Main-Class", application.mainClassName)
+//    }
+//
+//    mergeServiceFiles {
+//        include("META-INF/services/io.vertx.core.spi.VerticleFactory")
+//    }
+//
+//}
+//
 
 fun JUnitPlatformExtension.filters(setup: FiltersExtension.() -> Unit) {
     when (this) {
@@ -164,4 +156,8 @@ fun FiltersExtension.engines(setup: EnginesExtension.() -> Unit) {
         is ExtensionAware -> extensions.getByType(EnginesExtension::class.java).setup()
         else              -> throw Exception("${this::class} must be an instance of ExtensionAware")
     }
+}
+
+kotlin {
+    experimental.coroutines = Coroutines.ENABLE
 }
