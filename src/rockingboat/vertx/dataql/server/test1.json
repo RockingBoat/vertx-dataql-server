@@ -1,34 +1,79 @@
 {
   "q": [
     {
-      "service": "shopcart",
-      "version": "v1",
-      "method": "get",
-      "fields": [
-        {
-          "from": "list.*.id",
-          "to": "data.*.id2"
-        }
+      "s": "shopcart",
+      "v": "v1",
+      "m": "get",
+      "fr": [
+        "list.<person_id, calculated_rank>"
       ],
-      "extract": {
+      "fs": {
         "list.person_id": "id",
         "list.calculated_rank": "cr"
-      }
+      },
+      "e": {
+        "list.full_url": "url",
+        "list.calculated_rank": "cr"
+      },
+      "r": {
+        "asd": 123
+      },
+      "sq": [
+        {
+          "s": "sub_shopcart_1",
+          "v": "v1",
+          "m": "get",
+          "fr": [
+            "list.<person_id, calculated_rank>"
+          ],
+          "fs": {
+            "list.person_id": "id",
+            "list.calculated_rank": "cr"
+          },
+          "e": {
+            "list.full_url": "url",
+            "list.calculated_rank": "cr"
+          },
+          "r": {
+            "asd": 123
+          }
+        },
+        {
+          "s": "sub_shopcart_2",
+          "v": "v1",
+          "m": "get",
+          "fr": [
+            "list.<person_id, calculated_rank>"
+          ],
+          "fs": {
+            "list.person_id": "id",
+            "list.calculated_rank": "cr"
+          },
+          "e": {
+            "list.full_url": "url",
+            "list.calculated_rank": "cr"
+          },
+          "r": {
+            "asd": 123
+          }
+        }
+      ]
     },
     {
-      "service": "account",
-      "version": "v1",
-      "method": "info",
-      "fields": [
-        {
-          "from": "list.*.id",
-          "to": "data.*.id2"
-        }
-      ],
-      "bindTo": "LLLL"
+      "s": "account",
+      "v": "v1",
+      "m": "info",
+      "fs": {
+        "list.*.id": "data.*.id2"
+      },
+      "b": "LLLL",
+      "r": [
+        "1",
+        "2"
+      ]
     }
   ],
   "o": {
-    "debug": true
+    "isDebug": true
   }
 }

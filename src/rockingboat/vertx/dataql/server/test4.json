@@ -11,6 +11,14 @@
     "widescreen_image_url": "http:\/\/media.ticketland.ru\/images\/420x270\/person\/2719678\/2.jpg",
     "subdomain": "www",
     "image": "http:\/\/media.ticketland.ru\/images\/250x250\/person\/2719678\/1.jpg",
-    "profession": "\u0410\u0440\u0442\u0438\u0441\u0442\u043a\u0430 \u0431\u0430\u043b\u0435\u0442\u0430"
+    "profession": "\u0410\u0440\u0442\u0438\u0441\u0442\u043a\u0430 \u0431\u0430\u043b\u0435\u0442\u0430",
+    "a": {
+      "b": {
+        "c":1
+      },
+      "e": {
+        "f":2
+      }
+    }
   }
 }

@@ -1,3 +1,8 @@
 package rockingboat.vertx.dataql.server.data
 
-data class OneRequest(val query: ServiceQuery, val options: Options, val subRequest: List<OneRequest>? = null)
+import rockingboat.vertx.dataql.server.DataQLFormOptions
+import rockingboat.vertx.dataql.server.DataQLFormQuery
+
+data class OneRequest(val query: DataQLFormQuery?,
+                      val options: DataQLFormOptions?,
+                      val subRequests: List<DataQLFormQuery>?)

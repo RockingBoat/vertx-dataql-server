@@ -41,6 +41,7 @@ buildscript {
         classpath("com.github.jengelman.gradle.plugins:shadow:2.0.0")
         classpath("org.junit.platform:junit-platform-gradle-plugin:1.0.0-M4")
         classpath("org.jetbrains.dokka:dokka-gradle-plugin:0.9.15")
+
     }
 }
 
@@ -110,6 +111,11 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinsVersion")
 
     compile("com.github.salomonbrys.kodein:kodein:$kodeinVersion")
+    compile("io.github.jupf.staticlog:staticlog:2.1.9")
+    compile("org.slf4j:slf4j-api:1.7.25")
+    compile("org.slf4j:slf4j-simple:1.7.25")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0")
+
 }
 
 tasks.withType<Wrapper> {

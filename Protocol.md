@@ -5,7 +5,7 @@
 |Name|Type|IsNull|Description|
 |----|----|------|-----------|
 |q|Array<Query>|false| Все запросы здесь|
-|o|Options|true|Общие параметры для вызывов, например дебаг|
+|o|options|true|Общие параметры для вызывов, например дебаг|
 
 ## Query
 
@@ -19,7 +19,7 @@
 |filter|TBA|TBA|TBA|
 |filterFunction|TBA|TBA|TBA|
 |sub|Array<Query>|true| подзапросы|
-|extract|Extract|true|TBA|
+|filter|Extract|true|TBA|
 
 ## Extract
 
@@ -36,7 +36,7 @@
 
 #### options (o)
 Список опций для данного запроса
-Тип Options?
+Тип options?
 
 #### request (r)
 Одно тело для всех рутовых запросов
