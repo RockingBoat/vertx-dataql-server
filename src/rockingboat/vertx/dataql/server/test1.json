@@ -5,7 +5,8 @@
       "v": "v1",
       "m": "get",
       "fr": [
-        "list.<person_id, calculated_rank>"
+        "list.<person_id, calculated_rank>",
+        "totalCount"
       ],
       "fs": {
         "list.person_id": "id",

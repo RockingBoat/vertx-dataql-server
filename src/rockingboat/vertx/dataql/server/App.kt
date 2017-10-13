@@ -1,21 +1,13 @@
 package rockingboat.vertx.dataql.server
 
-
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.github.salomonbrys.kodein.instance
 import de.jupf.staticlog.Log
-import io.vertx.core.json.JsonObject
 import rockingboat.vertx.dataql.server.builder.DataQLDSL
-import rockingboat.vertx.dataql.server.extension.toListOfJsonPathKey
-import rockingboat.vertx.dataql.server.interfaces.IRequester
-import java.io.File
-import kotlin.reflect.KClass
-import kotlin.reflect.full.createInstance
+import rockingboat.vertx.dataql.server.builder.registerDataQLDSL
+import rockingboat.vertx.dataql.server.jjson.JJson
+import rockingboat.vertx.dataql.server.jjson.registerJJson
 
-
-fun DataQLDSL.toJsonObject() = JsonObject(this.toMap())
 
 val queryNet22 = DataQLDSL {
     options {
@@ -28,14 +20,8 @@ val queryNet22 = DataQLDSL {
             version = "v1"
             method = "get"
             filter("list.<person_id, calculated_rank>")
-            fields(mapOf(
-                "list.person_id" to "id",
-                "list.calculated_rank" to "id"
-            ))
-            extract(mapOf(
-                "list.full_url" to "url",
-                "list.calculated_rank" to "cr"
-            ))
+            fields("list.person_id" to "id", "list.calculated_rank" to "id")
+            extract("list.full_url" to "url", "list.calculated_rank" to "cr")
         }
         add {
             service = "account"
@@ -47,18 +33,15 @@ val queryNet22 = DataQLDSL {
                     service = "SubQuery"
                     version = "v1"
                     method = "get"
-                    extract(mapOf(
-                        "list.full_url" to "url",
-                        "list.calculated_rank" to "cr"
-                    ))
+                    extract("list.full_url" to "url", "list.calculated_rank" to "cr")
                 }
             }
         }
     }
-}.toJsonObject()
+}
 
 
-private val mapper = ObjectMapper().registerKotlinModule()
+val mapper = ObjectMapper().registerKotlinModule().registerJJson().registerDataQLDSL()
 
 class OutputForm {
     var data: Any? = null
@@ -70,205 +53,140 @@ class OutputForm {
     }
 }
 
+class OneOutput {
+    //    @JsonProperty(DATA_QL_FIELD_BIND_TO)
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
+    var filter: JJson? = null
 
-fun MutableList<KeysTreeNode>.findByKey(key: String) = this.firstOrNull { it.key == key }
+    //    @JsonProperty(DATA_QL_FIELD_BIND_TO)
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
+    var fields: JJson? = null
 
-
-data class KeysTreeNode(val key: String?) {
-    var opt = mutableListOf<TreeNodeType>()
-    var children = mutableListOf<KeysTreeNode>()
-    var parent: KeysTreeNode? = null
-
-    fun addChild(node: KeysTreeNode) {
-        children.add(node)
-        node.parent = this
-    }
-
-
-    fun abc(currentNode: KeysTreeNode, key: String, type: TreeNodeType): KeysTreeNode {
-        var foundNode = currentNode.children.findByKey(key)
-        if (foundNode == null) {
-            val newNode = KeysTreeNode(key)
-            newNode.parent = currentNode
-            currentNode.addChild(newNode)
-            foundNode = newNode
-        }
-
-        if (!foundNode.opt.contains(type))
-            foundNode.opt.add(type)
-
-        return foundNode
-    }
-
-    fun addChild(key: String, type: TreeNodeType) {
-        var currentNode = this
-        val jsonPath = key.toListOfJsonPathKey()
-        jsonPath.forEach { path ->
-            currentNode = when (path) {
-                is JsonPathKey.ObjectKey  -> abc(currentNode, path.key, type)
-                is JsonPathKey.ObjectKeys -> path.set.toList().map { abc(currentNode, it, type) }.first()
-                is JsonPathKey.FullArray  -> currentNode
-                else                      -> throw IllegalArgumentException("kkk ${key} ${path}")
-            }
-        }
-    }
-
-    fun toString(identLevel: Int): String {
-        var s = " ".repeat(identLevel * 4) + "($key)"
-        s += "\t[ ${opt.joinToString(", ") { it.toString() }} ]"
-
-
-        if (!children.isEmpty()) {
-            s += "\n" + children.joinToString("\n") { it.toString(identLevel + 1)}
-        }
-        return s
-
-    }
-
-    override fun toString(): String {
-        return toString(0)
-    }
+    //    @JsonProperty(DATA_QL_FIELD_BIND_TO)
+//    @JsonInclude(JsonInclude.Include.NON_NULL)
+    var extracted: JJson? = null
 }
-
-
-sealed class TreeNodeType {
-    data class Filter(val key: String) : TreeNodeType()
-    data class Extract(val key: String) : TreeNodeType()
-    data class Field(val key: String) : TreeNodeType()
-    object None : TreeNodeType()
-    object NodeRoot : TreeNodeType()
-}
-
 
 fun main(args: Array<String>) {
 
 
-    val mapper = ObjectMapper().registerKotlinModule()
     Log.newFormat {
         line(text("["), date("yyyy-MM-dd HH:mm:ss.SSS"), text("]"), space, occurrence, space, level, text(":"), space, message)
     }
 
-    val requester = di.instance<IRequester>()
-    val str = File("/Work/projects/vertx/api-gateway/src/rockingboat/vertx/dataql/server/test1.json").readText()
-    val queryNet = mapper.readValue<DataQLForm>(str)
-
-
-    val rootNode = KeysTreeNode(null)
-
-    queryNet.queries?.forEach { query ->
-        query.filter?.forEach {
-
-            rootNode.addChild(it, TreeNodeType.Filter(it))
-
-        }
-
-        query.fields?.keys?.forEach {
-
-            rootNode.addChild(it, TreeNodeType.Field(it))
-        }
-    }
-
-
-//    val r = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode)
-    Log.debug("\n" + rootNode.toString(0))
-
-
-//    val outputData = OutputForm()
+    Log.debug(queryNet22.toString())
 //
-//    val queriesCount = queryNet.queries?.count() ?: 0
-//
-//    queryNet.queries?.map {
-//        OneRequest(it.rootQuery(), queryNet.options, it.subQueries)
-//    }?.forEach { request ->
+//    val requester = di.instance<IRequester>()
+//    val str = File("/Work/projects/vertx/api-gateway/src/rockingboat/vertx/dataql/server/test1.json").readText()
+//    val queryNet = mapper.readValue<DataQLForm>(str)
 //
 //
-//        requester.goTest2().let { obj ->
+//    val mList = mutableListOf<OneOutput>()
+//    Log.debug("Start")
+//    queryNet.queries?.forEach { query ->
+//        val rootNode = KeyTreeNode()
+//        query.filter?.forEach {
 //
-//            when (obj) {
-//                is RequesterResponse.Object -> {
-//                    val r = obj.filter("list.person_id")
-//                    Log.debug(r.toString())
-//                }
+//            rootNode.addChild(it, KeyTreeNodeVariant.Filter(it))
 //
-//                else                        -> Log.debug("Not Implemented")
-//            }
+//        }
 //
+//        query.fields?.keys?.forEach {
 //
-//            if (obj is JsonObject) {
-//                val outputObj = obj.let {
-//                    request.query?.filter?.let { obj.filter(it) }
-//                }.let {
-//                    request.query?.extract?.let { obj.extract(it) }
-//                }
-//
-//                if (outputData.data == null) {
-//                    if (queriesCount > 1) {
-//                        outputData.data = mutableMapOf<String, Any?>()
-//                    } else {
-//                        outputData.data = outputObj?.map
-//                    }
-//                }
-//                if (queriesCount > 1) {
-//                    request.query?.outputBindPath()?.let { name ->
-//                        (outputData.data as? MutableMap<String, Any?>)?.let { it[name] = outputObj?.map }
-//                    }
-//                }
-//            }
-}
-
-
-//    }
-//
-//
-//    Log.debug(outputData.toJsonString(true))
-
-
-//    val queryNet = DataQLDSL(jsonString = str).toJsonObject()
-
-
-//    val obj = parse("/Work/projects/vertx/api-gateway/src/rockingboat/vertx/dataql/server/test2.json")
-
-
-//    queryNet.let {
-//        val queries = it.getOrNull<JsonArray>(DATA_QL_FIELD_QUERIES) ?: throw IllegalArgumentException("kkk") // TODO: EXCEPTION
-//        val options = it.getOrNull("o") ?: JsonObject()
-//        val request = it.getOrNull<JsonObject>("r")
-//
-//        val output = JsonObject(mapOf("data" to JsonObject()))
-//        val data = output.getJsonObject("data")
-//
-//        val servicesQueries = queries.mapNotNull { it as? JsonObject }
-//            .mapNotNull {
-//
-//                val serviceQuery = tryOrNull { ServiceQuery(it) }
-//                if (serviceQuery != null) {
-//                    val serviceOptions = Options(options)
-//                    OneRequest(serviceQuery, serviceOptions)
-//                } else {
-//                    null
-//                }
-//            }
-//
-//        servicesQueries.forEach { oneRequest ->
-//            val result = requester.goTest()
-//            result?.let { obj ->
-//
-//                val subRequestData = oneRequest.query.extract?.let { obj.extract(it) }
-//
-//                val outputObject = obj.let {
-//                    oneRequest.query.filter?.let { obj.filter(it) }
-//                }?.let {
-//                    oneRequest.query.fields?.let { obj.extract(it) }
-//                }
-//
-//                data.map[oneRequest.query.name] = outputObject
-//            }
+//            rootNode.addChild(it, KeyTreeNodeVariant.Field(it))
 //        }
 //
 //
-//        Log.debug(output.prettyPrinted() ?: "No Output")
+//        requester.goTest3().let { obj ->
+//            rootNode.process(obj)
+//            val oneOutput = OneOutput()
 //
+//
+//            if (query.hasSubRequests && query.extract != null) {
+//                oneOutput.extracted = JJson.Object().apply {
+//                    rootNode.extracted.value.forEach { item ->
+//                        query.extract[item.key]?.let {
+//                            set(it, item.value)
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (query.filter != null) {
+//                oneOutput.filter = obj
+//            } else if (query.fields != null) {
+//                oneOutput.fields = JJson.Object().apply {
+//                    rootNode.fields.value.forEach { item ->
+//                        query.fields[item.key]?.let {
+//                            set(it, item.value)
+//                        }
+//                    }
+//                }
+//            }
+//
+//
+//
+//            Log.debug(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(oneOutput))
+//
+//
+////        fields.forEach { key, value ->
+////            query.fields?.get(key)?.let {
+////                outputFields[it] = value
+////            }
+////        }
+//
+////// TODO: Need Make^ Not Delete
+////            fields.values.first().let {
+////                if (it is JArrayErased) {
+////                    val r = mutableListOf<Map<String, Any?>>()
+////                    val cnt = it.count()
+////                    val keys =  fields.keys.mapNotNull {query.fields?.get(it)}
+////
+////
+////
+////
+////                    fields.forEach { key, value ->
+////                        query.fields?.get(key)?.let {
+////                            outputFields[it] = value
+////                        }
+////                    }
+////
+////                    for (i in 0..cnt) {
+////
+////                        val mm = mutableMapOf<String, Any>()
+////                        keys.forEach {
+////                            mm[it] =
+////                        }
+////
+////                        r.add(mm)
+////                    }
+////                }
+////            }
+//
+//
+////        val extractedMap = rootNode.extracted
+////        val extractedFields = mutableMapOf<String, Any?>()
+////
+////
+////        extractedMap.forEach { key, value ->
+////            query.extract?.get(key)?.let {
+////                outputFields[it] = value
+////            }
+////        }
+//
+//
+//        }
 //    }
+//
+//    Log.debug("End")
+}
 
 
-//}
+
+
+
+
+
+
+
+

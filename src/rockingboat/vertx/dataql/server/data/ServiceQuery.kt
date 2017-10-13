@@ -2,7 +2,7 @@ package rockingboat.vertx.dataql.server.data
 
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
-import rockingboat.vertx.dataql.server.getOrNull
+import rockingboat.vertx.dataql.server.extension.getOrNull
 
 sealed class ServiceQueryException : Exception() {
     object ServiceNameIsMissing : ServiceQueryException()

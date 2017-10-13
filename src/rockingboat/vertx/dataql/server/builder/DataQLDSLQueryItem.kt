@@ -1,15 +1,17 @@
 package rockingboat.vertx.dataql.server.builder
 
 class DataQLDSLQueryItem {
-    private var fields: MutableMap<String, String>? = null
-    private var extract: MutableMap<String, String>? = null
-    private var filter: MutableList<String>? = null
-    private var subQueries: DataQLDSLQuery? = null
+    var fields: MutableMap<String, String>? = null
+    var extract: MutableMap<String, String>? = null
+    var filter: MutableList<String>? = null
+    var subQueries: DataQLDSLQuery? = null
 
     var service: String? = null
     var version: String? = null
     var method: String? = null
     var bindTo: String? = null
+    var request: Any? = null
+    var filterOnService: Boolean = false
 
 
     @Suppress("unused")
@@ -26,6 +28,8 @@ class DataQLDSLQueryItem {
     fun extract(value: Map<String, String>) {
         extract = value.toMutableMap()
     }
+
+    fun extract(vararg value: Pair<String, String>) = extract(value.toMap())
 
     @Suppress("unused")
     fun extract(key: String, value: String) {
@@ -54,25 +58,14 @@ class DataQLDSLQueryItem {
     }
 
     @Suppress("unused")
+    fun fields(vararg value: Pair<String, String>) = fields(value.toMap())
+
+
+    @Suppress("unused")
     fun field(key: String, value: String) {
         if (fields == null)
             fields = mutableMapOf()
 
         fields?.let { it[key] = value }
     }
-
-    @Suppress("unused")
-    fun toMap(): Map<String, Any> {
-        val map = mutableMapOf<String, Any>()
-        service?.let { map[DATA_QL_FIELD_SERVICE] = it }
-        version?.let { map[DATA_QL_FIELD_VERSION] = it }
-        method?.let { map[DATA_QL_FIELD_METHOD] = it }
-        bindTo?.let { map[DATA_QL_FIELD_BIND_TO] = it }
-        fields?.let { map[DATA_QL_FIELD_FIELDS] = it }
-        extract?.let { map[DATA_QL_FIELD_EXTRACT] = it }
-        filter?.let { map[DATA_QL_FIELD_FILTER] = it }
-        subQueries?.let { map[DATA_QL_FIELD_SUB_QUERIES] = it.toList() }
-        return map
-    }
-
 }

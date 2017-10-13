@@ -94,7 +94,7 @@ dependencies {
 
 defaultTasks 'run'
 
-task wrapper(type: Wrapper) {
+task wrapper(keyTreeNodeVariant: Wrapper) {
     gradleVersion = "4.0"
 }
 

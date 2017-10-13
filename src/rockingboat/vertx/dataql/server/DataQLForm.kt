@@ -18,8 +18,6 @@ import rockingboat.vertx.dataql.server.builder.DATA_QL_FIELD_SUB_QUERIES
 import rockingboat.vertx.dataql.server.builder.DATA_QL_FIELD_VERSION
 
 
-private val mapper = ObjectMapper().registerKotlinModule()
-
 open class DataQLFormJson {
     fun toJsonString(isPrettyPrinted: Boolean = false): String = when (isPrettyPrinted) {
         true  -> mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
@@ -36,6 +34,7 @@ data class DataQLForm(
     val queries: List<DataQLFormQuery>?
 ) : DataQLFormJson()
 
+@Suppress("MemberVisibilityCanPrivate")
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DataQLFormQuery(
     @JsonProperty(DATA_QL_FIELD_SERVICE)
@@ -74,13 +73,51 @@ data class DataQLFormQuery(
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val request: Any?
 ) : DataQLFormJson() {
+    val hasSubRequests get() = (subQueries?.count() ?: 0) > 0
+    val outputBindPath get() = bindTo ?: service
     fun rootQuery() = this.copy(subQueries = null)
-    fun outputBindPath(): String?  {
-        bindTo?.let { return it }
-        return service
-    }
+
+    fun remote() = DataQLOneRemoteQuery(method, version, request)
+    fun remoteWithProcessing() = DataQLOneRemoteQueryWithProcessing(method, version, request, fields, filter)
 
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DataQLFormOptions(val isDebug: Boolean?, val isTrace: Boolean?) : DataQLFormJson()
+
+
+data class DataQLOneRemoteQuery(
+    @JsonProperty(DATA_QL_FIELD_METHOD)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val method: String?,
+
+    @JsonProperty(DATA_QL_FIELD_VERSION)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val version: String?,
+
+    @JsonProperty(DATA_QL_FIELD_REQUEST)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val request: Any?
+)
+
+data class DataQLOneRemoteQueryWithProcessing(
+    @JsonProperty(DATA_QL_FIELD_METHOD)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val method: String?,
+
+    @JsonProperty(DATA_QL_FIELD_VERSION)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val version: String?,
+
+    @JsonProperty(DATA_QL_FIELD_REQUEST)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val request: Any?,
+
+    @JsonProperty(DATA_QL_FIELD_FIELDS)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val fields: Map<String, String>?,
+
+    @JsonProperty(DATA_QL_FIELD_FILTER)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val filter: List<String>?
+)

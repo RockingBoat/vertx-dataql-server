@@ -1,31 +1,31 @@
 package rockingboat.vertx.dataql.server.builder
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-
-private val mapper = ObjectMapper().registerKotlinModule()
-
-const val DATA_QL_FIELD_QUERIES = "q"
-const val DATA_QL_FIELD_OPTIONS = "o"
-const val DATA_QL_FIELD_SERVICE = "s"
-const val DATA_QL_FIELD_VERSION = "v"
-const val DATA_QL_FIELD_METHOD = "m"
-const val DATA_QL_FIELD_BIND_TO = "b"
-const val DATA_QL_FIELD_FIELDS = "fs"
-const val DATA_QL_FIELD_EXTRACT = "e"
-const val DATA_QL_FIELD_FILTER = "fr"
-const val DATA_QL_FIELD_SUB_QUERIES = "sq"
-const val DATA_QL_FIELD_REQUEST = "r"
+import rockingboat.vertx.dataql.server.mapper
 
 
-class DataQLDSL(init: DataQLDSL.() -> Unit) {
+const val FIELD_QUERIES = "q"
+const val FIELD_OPTIONS = "o"
+const val FIELD_SERVICE = "s"
+const val FIELD_VERSION = "v"
+const val FIELD_METHOD = "m"
+const val FIELD_BIND_TO = "b"
+const val FIELD_FIELDS = "fs"
+const val FIELD_EXTRACT = "e"
+const val FIELD_FILTER = "fr"
+const val FIELD_SUB_QUERIES = "sq"
+const val FIELD_REQUEST = "r"
+const val FIELD_FILTER_ON_SERVICE = "fos"
+const val FIELD_OPTIONS_DEBUG = "isDebug"
+const val FIELD_OPTIONS_TRACE = "isTrace"
 
-    private var options: DataQLDSLOptions? = null
-    private var queries: DataQLDSLQuery? = null
-
-    init {
+class DataQLDSL() {
+    constructor(init: DataQLDSL.() -> Unit) : this() {
         this.init()
     }
+
+    var options: DataQLDSLOptions? = null
+    var queries: DataQLDSLQuery? = null
+
 
     @Suppress("unused")
     fun options(init: DataQLDSLOptions.() -> Unit): DataQLDSLOptions {
@@ -44,19 +44,7 @@ class DataQLDSL(init: DataQLDSL.() -> Unit) {
     }
 
     @Suppress("unused")
-    fun toJsonString(isPrettyPrinted: Boolean = false): String = toMap().let {
-        val map = this.toMap()
-        if (isPrettyPrinted)
-            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map)
-        else
-            mapper.writeValueAsString(map)
-    }
 
-    fun toMap(): Map<String, Any> {
-        val map = mutableMapOf<String, Any>()
-        options?.let { map[DATA_QL_FIELD_OPTIONS] = it.toMap() }
-        queries?.let { map[DATA_QL_FIELD_QUERIES] = it.toList() }
-        return map
-    }
 
+    override fun toString(): String = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this)
 }
