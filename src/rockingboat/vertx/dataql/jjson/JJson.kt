@@ -2,7 +2,7 @@ package rockingboat.vertx.dataql.jjson
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeType
-import rockingboat.vertx.dataql.server.mapper
+import rockingboat.vertx.dataql.mapper
 
 private fun process(node: JsonNode) = when (node.nodeType) {
     JsonNodeType.OBJECT  -> JJson.Object(node)

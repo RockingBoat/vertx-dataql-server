@@ -3,7 +3,7 @@ package rockingboat.vertx.dataql.builder
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import rockingboat.vertx.dataql.server.mapper
+import rockingboat.vertx.dataql.mapper
 
 const val FIELD_QUERIES = "q"
 const val FIELD_OPTIONS = "o"
@@ -19,6 +19,8 @@ const val FIELD_REQUEST = "r"
 const val FIELD_FILTER_ON_SERVICE = "fos"
 const val FIELD_OPTIONS_DEBUG = "isDebug"
 const val FIELD_OPTIONS_TRACE = "isTrace"
+
+
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(using = DataQLDSLJsonDeserializer::class)

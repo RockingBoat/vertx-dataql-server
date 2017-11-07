@@ -1,13 +1,13 @@
 package rockingboat.vertx.dataql
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import rockingboat.vertx.dataql.server.interfaces.IRequester
-import rockingboat.vertx.dataql.server.jjson.JJson
+import rockingboat.vertx.dataql.interfaces.IRequester
+import rockingboat.vertx.dataql.jjson.JJson
 import java.io.File
 
 class Requester : IRequester {
     override fun goTest3(): JJson {
-        val str = File("/Work/projects/vertx/api-gateway/src/rockingboat/vertx/dataql/server/test4.json").readText()
+        val str = File("/Work/Backend/DataQL/api-gateway/src/rockingboat/vertx/dataql/test4.json").readText()
         tryOrNull { mapper.readValue<JJson>(str) }?.let { return it }
         return JJson.Null
     }

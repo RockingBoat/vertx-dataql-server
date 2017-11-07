@@ -1,5 +1,9 @@
 package rockingboat.vertx.dataql.builder
 
+import rockingboat.vertx.dataql.jjson.JJson
+import rockingboat.vertx.dataql.jjson.JJsonKeyTreeNode
+import rockingboat.vertx.dataql.jjson.JJsonKeyTreeNodeVariant
+
 class DataQLDSLQueryItem {
     var fields: MutableMap<String, String>? = null
     var extract: MutableMap<String, String>? = null
@@ -12,6 +16,20 @@ class DataQLDSLQueryItem {
     var bindTo: String? = null
     var request: Any? = null
     var filterOnService: Boolean = false
+
+    @Suppress("unused")
+    val jjsonKeyTreeNode: JJsonKeyTreeNode by lazy {
+        val result = JJsonKeyTreeNode()
+        this.filter?.forEach {
+            result.addChild(it, JJsonKeyTreeNodeVariant.Filter(it))
+        }
+
+        this.fields?.keys?.forEach {
+            result.addChild(it, JJsonKeyTreeNodeVariant.Field(it))
+        }
+
+        result
+    }
 
     @Suppress("unused")
     fun subQueries(init: DataQLDSLQuery.() -> Unit): DataQLDSLQuery {
@@ -68,6 +86,7 @@ class DataQLDSLQueryItem {
     }
 
     fun forRequest() = DataQLDSLQueryItemForRequest(fields, filter, service, version, method, request, filterOnService)
+
 }
 
 data class DataQLDSLQueryItemForRequest(

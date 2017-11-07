@@ -1,20 +1,17 @@
-package rockingboat.vertx.dataql.keyTree
+package rockingboat.vertx.dataql.jjson
 
-import io.vertx.kotlin.core.json.JsonObject
-import rockingboat.vertx.dataql.server.jjson.JJson
-
-sealed class KeyTreeNodeVariant {
-    data class Filter(val key: String) : KeyTreeNodeVariant()
-    data class Extract(val key: String) : KeyTreeNodeVariant() {
-        var result = KeyTreeNodeVariantValue()
+sealed class JJsonKeyTreeNodeVariant {
+    data class Filter(val key: String) : JJsonKeyTreeNodeVariant()
+    data class Extract(val key: String) : JJsonKeyTreeNodeVariant() {
+        var result = JJsonKeyTreeNodeVariantValue()
     }
 
-    data class Field(val key: String) : KeyTreeNodeVariant() {
-        var result = KeyTreeNodeVariantValue()
+    data class Field(val key: String) : JJsonKeyTreeNodeVariant() {
+        var result = JJsonKeyTreeNodeVariantValue()
     }
 }
 
-class KeyTreeNodeVariantValue {
+class JJsonKeyTreeNodeVariantValue {
     private var count = 0
     private var value: JJson = JJson.Null
     fun getValue(key: String) = when (count) {

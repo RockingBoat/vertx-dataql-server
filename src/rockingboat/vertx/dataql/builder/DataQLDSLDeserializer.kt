@@ -3,7 +3,7 @@ package rockingboat.vertx.dataql.builder
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.module.kotlin.convertValue
-import rockingboat.vertx.dataql.server.mapper
+import rockingboat.vertx.dataql.mapper
 
 class DataQLDSLJsonDeserializer : JsonDeserializer<DataQLDSL>() {
 
@@ -27,7 +27,6 @@ class DataQLDSLJsonDeserializer : JsonDeserializer<DataQLDSL>() {
         }
     }
 }
-
 
 class DataQLDSLQueryItemJsonDeserializer : JsonDeserializer<DataQLDSLQueryItem>() {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?) = DataQLDSLQueryItem().apply {

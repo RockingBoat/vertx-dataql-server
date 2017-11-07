@@ -1,9 +1,7 @@
 package rockingboat.vertx.dataql.interfaces
 
-import io.vertx.core.json.JsonObject
-//import rockingboat.vertx.dataql.server.RequesterResponse
-//import rockingboat.vertx.dataql.server.data.OneRequest
-import rockingboat.vertx.dataql.server.jjson.JJson
+import rockingboat.vertx.dataql.jjson.JJson
+
 
 interface IRequester {
 

@@ -3,12 +3,16 @@ package rockingboat.vertx.dataql
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.github.salomonbrys.kodein.instance
 import de.jupf.staticlog.Log
-import rockingboat.vertx.dataql.server.builder.DataQLDSL
-import rockingboat.vertx.dataql.server.builder.registerDataQLDSL
-import rockingboat.vertx.dataql.server.jjson.JJson
-import rockingboat.vertx.dataql.server.jjson.registerJJson
-
+import rockingboat.vertx.dataql.builder.DataQLDSL
+import rockingboat.vertx.dataql.builder.registerDataQLDSL
+import rockingboat.vertx.dataql.interfaces.IRequester
+import rockingboat.vertx.dataql.jjson.JJson
+import rockingboat.vertx.dataql.jjson.JJsonKeyTreeNode
+import rockingboat.vertx.dataql.jjson.JJsonKeyTreeNodeVariant
+import rockingboat.vertx.dataql.jjson.registerJJson
+import java.io.File
 
 val queryNet22 = DataQLDSL {
     options {
@@ -23,7 +27,7 @@ val queryNet22 = DataQLDSL {
             filter("list.<person_id, calculated_rank>")
             fields("list.person_id" to "id", "list.calculated_rank" to "id")
             extract("list.full_url" to "url", "list.calculated_rank" to "cr")
-            request = mapOf( "a" to 1, "b" to 2)
+            request = mapOf("a" to 1, "b" to 2)
 
         }
         add {
@@ -42,7 +46,6 @@ val queryNet22 = DataQLDSL {
         }
     }
 }
-
 
 val mapper = ObjectMapper().registerKotlinModule().registerJJson().registerDataQLDSL()
 
@@ -70,43 +73,33 @@ class OneOutput {
     var extracted: JJson? = null
 }
 
+
 fun main(args: Array<String>) {
 
+//    Log.newFormat {
+//        line(text("["), date("yyyy-MM-dd HH:mm:ss.SSS"), text("]"), space, occurrence, space, level, text(":"), space, message)
+//    }
+//
+//    val a = queryNet22.toString()
+//    val b = mapper.readValue<DataQLDSL>(a)
+//    Log.debug(queryNet22.toString())
+//
+    val requester = di.instance<IRequester>()
+    val str = File("/Work/Backend/DataQL/api-gateway/src/rockingboat/vertx/dataql/test1.json").readText()
+    val queryNet = mapper.readValue<DataQLDSL>(str)
 
-    Log.newFormat {
-        line(text("["), date("yyyy-MM-dd HH:mm:ss.SSS"), text("]"), space, occurrence, space, level, text(":"), space, message)
-    }
+    val mList = mutableListOf<OneOutput>()
+    Log.debug("Start")
 
-    val a = queryNet22.toString()
-    val b = mapper.readValue<DataQLDSL>(a)
-    Log.debug(queryNet22.toString())
-//
-//    val requester = di.instance<IRequester>()
-//    val str = File("/Work/projects/vertx/api-gateway/src/rockingboat/vertx/dataql/server/test1.json").readText()
-//    val queryNet = mapper.readValue<DataQLForm>(str)
-//
-//
-//    val mList = mutableListOf<OneOutput>()
-//    Log.debug("Start")
-//    queryNet.queries?.forEach { query ->
-//        val rootNode = KeyTreeNode()
-//        query.filter?.forEach {
-//
-//            rootNode.addChild(it, KeyTreeNodeVariant.Filter(it))
-//
-//        }
-//
-//        query.fields?.keys?.forEach {
-//
-//            rootNode.addChild(it, KeyTreeNodeVariant.Field(it))
-//        }
-//
-//
-//        requester.goTest3().let { obj ->
-//            rootNode.process(obj)
-//            val oneOutput = OneOutput()
-//
-//
+    queryNet.queries?.queries?.forEach { query ->
+        val rootNode = query.jjsonKeyTreeNode
+
+
+        requester.goTest3().let { obj ->
+            rootNode.process(obj)
+            val oneOutput = OneOutput()
+            Log.debug(rootNode.toString())
+
 //            if (query.hasSubRequests && query.extract != null) {
 //                oneOutput.extracted = JJson.Object().apply {
 //                    rootNode.extracted.value.forEach { item ->
@@ -117,17 +110,19 @@ fun main(args: Array<String>) {
 //                }
 //            }
 //
-//            if (query.filter != null) {
-//                oneOutput.filter = obj
-//            } else if (query.fields != null) {
-//                oneOutput.fields = JJson.Object().apply {
-//                    rootNode.fields.value.forEach { item ->
+            if (query.filter != null) {
+                oneOutput.filter = obj
+            } else if (query.fields != null) {
+                oneOutput.fields = JJson.Object().apply {
+                    rootNode.fields.value.forEach { item ->
+                        Log.debug(item.key)
+                        Log.debug(item.value.toString())
 //                        query.fields[item.key]?.let {
 //                            set(it, item.value)
 //                        }
-//                    }
-//                }
-//            }
+                    }
+                }
+            }
 //
 //
 //
@@ -184,6 +179,8 @@ fun main(args: Array<String>) {
 //    }
 //
 //    Log.debug("End")
+        }
+    }
 }
 
 

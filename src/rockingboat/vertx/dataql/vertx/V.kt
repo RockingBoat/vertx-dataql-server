@@ -3,7 +3,7 @@ package rockingboat.vertx.dataql.vertx
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServer
 import io.vertx.ext.web.handler.BodyHandler
-import rockingboat.vertx.dataql.server.builder.DataQLDSLQueryItem
+import rockingboat.vertx.dataql.builder.DataQLDSLQueryItem
 import rockingboat.vertx.helpers.web.body
 import rockingboat.vertx.helpers.web.defaultRouter
 import rockingboat.vertx.helpers.web.jsonResponse
