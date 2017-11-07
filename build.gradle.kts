@@ -59,6 +59,7 @@ apply {
 repositories {
     mavenCentral()
     jcenter()
+    maven { setUrl("https://dl.bintray.com/rockingboat/maven") }
 }
 
 
@@ -115,6 +116,7 @@ dependencies {
     compile("org.slf4j:slf4j-api:1.7.25")
     compile("org.slf4j:slf4j-simple:1.7.25")
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0")
+    compile("rockingboat.vertx.helpers:web:0.8.2")
 
 }
 
@@ -164,6 +166,6 @@ fun FiltersExtension.engines(setup: EnginesExtension.() -> Unit) {
     }
 }
 
-kotlin {
-    experimental.coroutines = Coroutines.ENABLE
-}
+//kotlin {
+//    experimental.coroutines = Coroutines.ENABLE
+//}
