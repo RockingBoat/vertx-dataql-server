@@ -1,11 +1,10 @@
 package rockingboat.vertx.dataql.jjson
 
+import rockingboat.vertx.dataql.builder.DataQLDSLQueryItem
 import rockingboat.vertx.dataql.jjson.extension.toListOfJsonPathKey
 import kotlin.reflect.KClass
 
-
 fun MutableList<JJsonKeyTreeNode>.findByKey(key: String) = this.firstOrNull { it.key == key }
-
 
 class JJsonKeyTreeNode() {
     var key = "ROOT"
@@ -32,6 +31,18 @@ class JJsonKeyTreeNode() {
         this.key = key
     }
 
+    constructor(query: DataQLDSLQueryItem, response: JJson) : this() {
+
+        query.filter?.forEach {
+            addChild(it, JJsonKeyTreeNodeVariant.Filter(it))
+        }
+
+        query.fields?.keys?.forEach {
+            addChild(it, JJsonKeyTreeNodeVariant.Field(it))
+        }
+
+        process(response)
+    }
 
     fun addChild(keyPath: String, JJsonKeyTreeNodeVariant: JJsonKeyTreeNodeVariant) {
         var currentNode = this
@@ -49,11 +60,9 @@ class JJsonKeyTreeNode() {
             currentNode.variants.add(JJsonKeyTreeNodeVariant)
     }
 
-
     override fun toString(): String {
         return toString(0)
     }
-
 
     fun process(obj: JJson) = process(obj, this)
 
@@ -96,7 +105,6 @@ class JJsonKeyTreeNode() {
         JJsonKeyTreeNode.parent = this
     }
 
-
     private fun addChild(currentJJsonKeyTreeNode: JJsonKeyTreeNode, key: String): JJsonKeyTreeNode {
         var foundNode = currentJJsonKeyTreeNode.children.findByKey(key)
         if (foundNode == null) {
@@ -108,7 +116,6 @@ class JJsonKeyTreeNode() {
 
         return foundNode
     }
-
 
     private fun walker(obj: JJson.Object, nodeJJson: JJsonKeyTreeNode, type: KClass<*>) {
         nodeJJson.variants.forEach {

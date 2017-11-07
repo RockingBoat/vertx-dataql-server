@@ -18,20 +18,6 @@ class DataQLDSLQueryItem {
     var filterOnService: Boolean = false
 
     @Suppress("unused")
-    val jjsonKeyTreeNode: JJsonKeyTreeNode by lazy {
-        val result = JJsonKeyTreeNode()
-        this.filter?.forEach {
-            result.addChild(it, JJsonKeyTreeNodeVariant.Filter(it))
-        }
-
-        this.fields?.keys?.forEach {
-            result.addChild(it, JJsonKeyTreeNodeVariant.Field(it))
-        }
-
-        result
-    }
-
-    @Suppress("unused")
     fun subQueries(init: DataQLDSLQuery.() -> Unit): DataQLDSLQuery {
         if (subQueries == null) {
             subQueries = DataQLDSLQuery()

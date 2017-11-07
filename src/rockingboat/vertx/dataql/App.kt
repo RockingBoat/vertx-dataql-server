@@ -73,7 +73,6 @@ class OneOutput {
     var extracted: JJson? = null
 }
 
-
 fun main(args: Array<String>) {
 
 //    Log.newFormat {
@@ -92,11 +91,9 @@ fun main(args: Array<String>) {
     Log.debug("Start")
 
     queryNet.queries?.queries?.forEach { query ->
-        val rootNode = query.jjsonKeyTreeNode
-
 
         requester.goTest3().let { obj ->
-            rootNode.process(obj)
+            val rootNode = JJsonKeyTreeNode(query, obj)
             val oneOutput = OneOutput()
             Log.debug(rootNode.toString())
 
